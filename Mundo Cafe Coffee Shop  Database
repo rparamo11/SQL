@@ -1,0 +1,45 @@
+-- Create a table for the coffee shop named "mundo_cafe"
+CREATE TABLE mundo_cafe (
+id INTEGER PRIMARY KEY,
+name TEXT,
+item_type TEXT,
+price NUMERIC,
+roast_type TEXT); 
+
+-- Add items into the newly created table
+INSERT INTO mundo_cafe VALUES
+(1, "Cafe Cubano", "coffee", 2.99, "espresso"),
+(2, "Cafe con Leche", "latte", 3.99, "dark"),
+(3, "Regular Coffee", "coffee", 1.99, "medium"),
+(4, "Horchata Latte", "latte", 4.99, "espresso"), 
+(5, "Oaxacan Latte", "latte", 5.99, "espresso"), 
+(6, "Frozen Regular Coffee", "coffe", 3.99, "medium"),
+(7, "Iced Coffee", "coffee", 2.99, "medium"),
+(8, "Iced Latted", "latte", 3.99, "medium"), 
+(9, "Blonde Coffee", "coffee", 2.99, "medium"), 
+(10, "Blonde Shot Espresso", "espresso", 2.99, "espresso"), 
+(11, "Espresso Shot", "espressso", 2.99, "espresso"), 
+(12, "Midnight Coffee", "coffee", 3.99, "dark"),
+(13, "Cafe Mexicano", "coffee", 1.99, "medium"),
+(14, "Drip", "coffee", 3.99, "dark"),
+(15, "Lux Espresso", "espresso", 5.99, "espresso");
+
+-- Displays all of the "mundo_cafe" table 
+SELECT * 
+FROM mundo_cafe; 
+
+-- Displays the name and price of the items, and ordered by price
+SELECT name, price 
+FROM mundo_cafe
+ORDER BY price;
+
+-- Groups the roast types and adds the sum of each type of roast
+SELECT roast_type, SUM(price) 
+FROM mundo_cafe
+GROUP BY roast_type;
+
+-- The top 5 most expensive items in the store
+SELECT name, price
+FROM mundo_cafe
+ORDER BY price desc
+LIMIT 5;

@@ -1,0 +1,94 @@
+-- Create a table of movie stars.
+CREATE TABLE MovieStar (
+id INTEGER PRIMARY KEY AUTOINCREMENT, 
+FirstName TEXT,
+LastName TEXT, 
+age INTEGER); 
+
+-- Insert data into the MovieStar table.
+INSERT INTO MovieStar (FirstName, LastName, age) VALUES ("Samuel L", "Jackson", 74); 
+INSERT INTO MovieStar (FirstName, LastName, age) VALUES ("Scarlett", "Johansson", 38); 
+INSERT INTO MovieStar (FirstName, LastName, age) VALUES ("Tom", "Cruise", 60); 
+INSERT INTO MovieStar (FirstName, LastName, age) VALUES ("Robert", "Downey Jr", 58);
+INSERT INTO MovieStar (FirstName, LastName, age) VALUES ("Morgan", "Freeman", 85); 
+INSERT INTO MovieStar (FirstName, LastName, age) VALUES ("Johnny", "Depp", 59); 
+INSERT INTO MovieStar (FirstName, LastName, age) VALUES ("Jennifer", "Lawrence", 32);
+INSERT INTO MovieStar (FirstName, LastName, age) VALUES ("Ana", "de Armas", 35); 
+
+-- Create table for movies that will be joined to the MovieStar table.
+CREATE TABLE Movies (
+Id INTEGER PRIMARY KEY AUTOINCREMENT, 
+StarId INTEGER,
+Name TEXT,
+Release INTEGER, 
+BoxOfficeDollars TEXT);
+
+-- Insert movie data into Movies table.
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (1, "Pulp Fiction", 1994, "$213.9M"); 
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (1, "Glass", 2019, "$247M");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (2, "Under the Skin", 2013, "$7.3M"); 
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (2, "Lucy", 2014, "$469M");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (3, "The Outsider", 1983, "$33.74M");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (3, "Top Gun: Maverick", 2022, "$1.5B");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (4, "Iron Man", 2008, "$140M");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (4, "The Avengers", 2012, "$1.5B");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (5, "Seven", 1995, "$327M");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (5, "Outbreak", 1995, "$190M"); 
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (6, "Edward Scissorhands", 1990, "$86M"); 
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (6, "Pirates of the Caribbean: Dead Man's Chest", 2006, "$1.06B"); 
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (7, "Mother", 2017, "$44.5M");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (7, "The Hunger Games", 2012, "$695M"); 
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (8, "Knock Knock", 2015, "$6.3M");
+INSERT INTO Movies (StarId, Name, Release, BoxOfficeDollars) VALUES (8, "Blade Runner 2049", 2017, "$267.5M");
+
+-- Create data table MovieStarData to house additional movie star data.
+CREATE TABLE MovieStarData (
+StarId INTEGER PRIMARY KEY, 
+Nationality TEXT, 
+Spouse TEXT, 
+Children INTEGER, 
+NetWorth TEXT); 
+
+-- Insert movie star data into table.
+INSERT INTO MovieStarData (StarId, Nationality, Spouse, Children, NetWorth) VALUES (1, "American", "LaTanya Richardson", 1, "$270M");
+INSERT INTO MovieStarData (StarId, Nationality, Spouse, Children, NetWorth) VALUES (2, "American", "Colin Jost", 2, "$165M");
+INSERT INTO MovieStarData (StarId, Nationality, Children, NetWorth) VALUES (3, "American", 3, "$600M");
+INSERT INTO MovieStarData (StarId, Nationality, Spouse, Children, NetWorth) VALUES (4, "American", "Susan Levin", 3, "$300M");
+INSERT INTO MovieStarData (StarId, Nationality, Children, NetWorth) VALUES (5, "American", 4, "$250M");
+INSERT INTO MovieStarData (StarId, Nationality, Children, NetWorth) VALUES (6, "American", 2, "$150M");
+INSERT INTO MovieStarData (StarId, Nationality, Spouse, Children, NetWorth) VALUES (7, "American", "Cooke Maroney", 1, "$160M");
+INSERT INTO MovieStarData (StarId, Nationality, NetWorth) VALUES (8, "Cuban", "$6M");
+
+-- Selects all data from the newly created MovieStar, Movies and MovieStarData tables.
+SELECT * FROM MovieStar;
+SELECT * FROM Movies;
+SELECT * FROM MovieStarData;
+
+-- Provides a list of actors and their movies. JOINS MoviesStar and Movies tables. 
+SELECT FirstName, LastName, Movies.Name
+FROM MovieStar
+JOIN Movies
+ON MovieStar.id = Movies.StarId;
+
+-- Provides information about the actors, nationality, spouse, children and networth. JOINS MovieStar and MovieStarData tables. 
+-- Orders/sorts the results by FirsName
+SELECT FirstName, LastName, age, Nationality, Spouse, Children, NetWorth
+FROM MovieStar AS MS
+JOIN MovieStarData AS MD
+ON MS.id = MD.StarID
+ORDER BY FirstName;
+
+-- Retrieves the first and last name from the MovieStar table and JOINS with the Movies table to get the movie name, release date and box office dollars. 
+-- Orders/sorts the results by release date descending. 
+SELECT FirstName, LastName, Name, Release, BoxOfficeDollars
+FROM Movies
+JOIN MovieStar
+ON Movies.StarId = MovieStar.id
+ORDER BY release DESC; 
+
+-- Looks for a movie released date of 2000 or later and the LastName of "Depp". 
+SELECT FirstName, LastName, Name, Release, BoxOfficeDollars
+FROM Movies
+JOIN MovieStar
+ON Movies.StarId = MovieStar.id
+WHERE release > 2000 AND LastName = "Depp";

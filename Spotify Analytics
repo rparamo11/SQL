@@ -1,0 +1,88 @@
+-- For this project, I downloaded Spotify data from Kaggle (https://www.kaggle.com/datasets/equinxx/spotify-top-50-songs-in-2021?select=spotify_top50_2021.csv). 
+-- Then I created a table to insert Spotify data into.
+-- Finally, I performed analytics on the data using SQL. 
+
+-- Creating the table: 
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness text NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL 
+);
+
+-- Then I inserted the Spotify Data .csv into the table.
+-- Next, I explored the data using the following SQL. 
+
+-- Select the whole table to make sure it was inserted correctly. 
+SELECT * 
+FROM BIT_DB.Spotifydata; 
+
+-- Selecting the top 10 artists/songs based on popularity. 
+SELECT artist_name, track_name, popularity
+FROM BIT_DB.Spotifydata
+ORDER BY popularity DESC
+LIMIT 10; 
+
+-- Finds the average danceability of all songs. 
+SELECT AVG(danceability) AS avg_danceability
+FROM BIT_DB.Spotifydata;
+
+-- Another way to find the average of daceability manually. 
+SELECT SUM(danceability)/COUNT(id) AS avg_danceability
+FROM BIT_DB.Spotifydata; 
+
+-- Selects the artist name, track and duration of the track and sorts the table by artist name. 
+SELECT artist_name, track_name, duration_ms
+FROM BIT_DB.Spotifydata
+ORDER BY artist_name; 
+
+-- Converts milliseconds into minutes.
+SELECT artist_name, track_name,(duration_ms/60000) AS minutes
+FROM BIT_DB.Spotifydata; 
+
+-- Counts how many times an arist appears on the top 50.
+SELECT artist_name, COUNT(artist_name)
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+ORDER BY artist_name; 
+
+-- Finds the average of energy. 
+SELECT AVG(energy)
+FROM BIT_DB.Spotifydata; 
+
+-- Using the average for energy, from the query above, to determine which songs have the best energy.
+SELECT artist_name, track_name, energy,
+    CASE
+        WHEN energy > 0.64636 THEN 'This song rocks!' 
+        WHEN energy < 0.64636 THEN 'This song needs more energy.'
+        WHEN energy = 0.64636 THEN 'I can vibe to this song'
+        ELSE 'Blah'
+    END AS song_rockability
+FROM BIT_DB.Spotifydata; 
+
+-- Finds the popularity average from all songs. 
+SELECT AVG(popularity)
+FROM BIT_DB.Spotifydata; 
+
+-- Using the average for energy and popularity, I determine if we should skip or listen to a song. 
+SELECT artist_name, track_name, 
+    CASE
+        WHEN popularity > 86.8 AND energy > 0.64636 THEN 'Must listen to!'
+        WHEN popularity < 86.8 AND energy < 0.64636 THEN 'Skip this song.'
+        ELSE 'Lets go eat!'
+    END AS listen_or_skip
+FROM BIT_DB.Spotifydata; 

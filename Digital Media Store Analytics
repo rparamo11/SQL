@@ -1,0 +1,150 @@
+-- In this SQL, I'm querying a digital media store database and includes tables for artists, albums, media tracks, invoices, and customers.
+
+
+--Show Customers (their full names, customer ID, and country) who are not in the US. Order by Country. 
+SELECT CustomerID, FirstName, LastName, country
+FROM customers
+WHERE Country <> 'USA' 
+ORDER BY country; 
+
+-- Show only the Customers from Brazil.
+SELECT CustomerID, FirstName, LastName, country
+FROM customers
+WHERE Country = 'Brazil';  
+
+-- Find the Invoices of customers who are from Brazil. The resulting table should show the customer's full name, Invoice ID, Date of the invoice, and billing country.
+SELECT cust.FirstName || ' ' || cust.LastName AS FullName, inv.InvoiceId, DATE(inv.InvoiceDate) AS invoice_date, inv.BillingCountry
+FROM invoices AS inv
+JOIN customers AS cust
+ON inv.CustomerId = cust.CustomerId
+WHERE BillingCountry = 'Brazil'; 
+
+-- Show the Employees who are Sales Agents.
+SELECT * 
+FROM employees
+WHERE Title = 'Sales Support Agent'; 
+
+-- Find a unique/distinct list of billing countries from the Invoice table.
+SELECT DISTINCT(BillingCountry) AS billing_countries
+FROM invoices
+ORDER BY billing_countries; 
+
+-- Provide a query that shows the invoices associated with each sales agent. The resulting table should include the Sales Agent's full name.
+SELECT inv.InvoiceId
+    , DATE(inv.InvoiceDate) AS invoice_date
+    , inv.Total AS invoice_total
+    , cust.CustomerId
+    , cust.FirstName|| ' ' || cust.LastName AS customer_fullname
+    , emp.EmployeeId
+    , emp.FirstName|| ' ' ||emp.LastName AS employee_fullname
+    , emp.Title 
+FROM invoices AS inv
+JOIN customers AS cust
+ON inv.CustomerId = cust.CustomerId
+JOIN employees AS emp
+ON cust.SupportRepId = emp.EmployeeId; 
+
+-- Show the Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers.
+SELECT inv.Total AS invoice_total
+    , cust.FirstName|| ' ' || cust.LastName AS customer_fullname
+    , cust.Country
+    , emp.FirstName|| ' ' ||emp.LastName AS sales_agent
+FROM invoices AS inv
+JOIN customers AS cust
+ON inv.CustomerId = cust.CustomerId
+JOIN employees AS emp
+ON cust.SupportRepId = emp.EmployeeId; 
+
+-- How many Invoices were there in 2009?
+SELECT COUNT(DISTINCT InvoiceId) AS inv_count2009
+FROM invoices
+WHERE DATE(InvoiceDate) LIKE '2009%'; 
+
+-- What are the total sales for 2009?
+SELECT SUM(Total) AS total_sales_2009
+FROM invoices
+WHERE DATE(InvoiceDate) Like '2009%'; 
+
+-- Query that includes the purchased track name with each invoice line ID.
+SELECT tracks.Name
+    , invoices.*
+    , invoices.CustomerId
+FROM tracks
+JOIN invoice_items
+ON tracks.TrackId = invoice_items.TrackId
+JOIN invoices
+ON invoice_items.InvoiceId = invoices.InvoiceId; 
+
+-- A query that includes the purchased track name, album title AND artist name.
+SELECT tracks.TrackId
+    , tracks.Name AS track_name
+    , albums.Title AS album_title
+    , artists.Name AS artist_name
+FROM tracks
+JOIN albums
+ON tracks.AlbumId = albums.AlbumId
+JOIN artists 
+ON albums.ArtistId = artists.ArtistId; 
+
+-- A query that shows all the Tracks, and include the Album name, Media type, and Genre.
+SELECT tracks.Name AS track_name
+    , albums.Title AS album_title
+    , artists.Name AS artist_name
+    , genres.Name AS genre
+    , media_types.name AS media_type
+FROM tracks
+JOIN albums
+ON tracks.AlbumId = albums.AlbumId
+JOIN artists 
+ON albums.ArtistId = artists.ArtistId
+JOIN media_types
+ON tracks.MediaTypeId = media_types.MediaTypeId
+JOIN genres
+ON tracks.GenreId = genres.GenreId; 
+
+-- Show the total sales made by each sales agent.
+SELECT employees.FirstName || ' ' || employees.LastName AS employee_fullname
+     , ROUND(SUM(invoices.Total), 2) AS total_sales
+FROM invoices
+JOIN customers
+ON invoices.CustomerId = customers.CustomerId
+JOIN employees
+ON customers.SupportRepId = employees.EmployeeId
+WHERE title = 'Sales Support Agent'
+GROUP BY employee_fullname; 
+
+-- Which sales agent made the most dollars in sales in 2009?
+SELECT employees.FirstName || ' ' || employees.LastName AS employee_fullname
+     , ROUND(SUM(invoices.Total), 2) AS total_sales
+FROM invoices
+JOIN customers
+ON invoices.CustomerId = customers.CustomerId
+JOIN employees
+ON customers.SupportRepId = employees.EmployeeId
+WHERE DATE(InvoiceDate) LIKE '2009%'
+GROUP BY employee_fullname
+ORDER BY total_sales DESC
+LIMIT 1; 
+
+-- Selects the top 5 composers based off the count of how many songs they composed. 
+SELECT Composer, COUNT(Composer) AS count_composer
+FROM tracks
+GROUP BY Composer
+ORDER BY count_composer DESC
+LIMIT 5; 
+
+-- Breaks down top genres in each country and counts how many of each genre per country
+SELECT invoices.BillingCountry AS Country
+, genres.name AS genre_name
+, COUNT(genres.name) AS genre_count
+FROM invoices
+JOIN invoice_items
+ON invoices.InvoiceId = invoice_items.InvoiceId
+JOIN tracks
+ON invoice_items.TrackId = tracks.TrackId
+JOIN genres
+ON genres.GenreId = tracks.GenreId
+GROUP BY genre_name
+ORDER BY genre_name;
+
+

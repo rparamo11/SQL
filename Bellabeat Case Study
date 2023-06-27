@@ -1,0 +1,185 @@
+/* ETL Process: 
+Downloaded data from Kaggle, titled "FitBit Fitness Tracker Data", (https://www.kaggle.com/datasets/arashnic/fitbit) 
+Once the data was downloaded I proceeded to open the datesets via Excel and look over the data. 
+Deleted multiple datasets w/ duplicate data. 
+Renamed the files and saved as CSV, then imported them to SQLite Studio. 
+Data Viz via Tableau at https://public.tableau.com/app/profile/rigo.paramo
+------------------------------------------------------------------------------------------------------------------
+Findings: 
+1. Most users are only using the basic functions of the device to track sedentary activity like Steps, Calories, Distance, Sleep. 
+2. Most of user activity was arund sedentary and light activity. Fairly active minutes and very active minues were used by few users. 
+3. A very small amount of users used the device to log BMI (Body Mass Index and Weight. 
+
+Summary / Analysis: 
+It seems like users are using the FitBit devices to only monitor sedentary activity and not athletic activity. Users might not be using other tracking
+activity due to a required manual input like BMI and weight. Bellabeat should creat an ecosystem of devices that speak to each other, for example a scale
+that syncs to a device every time a user weighs themselves. The scale should automatically adjust the BMI based off initial setup of the devices. 
+*/ 
+
+SELECT * FROM daily_activity; 
+
+-- Counts how many users are in the data. Answer: 33
+SELECT COUNT(DISTINCT Id)
+FROM daily_activity;
+
+-- List all 33 user Ids. 
+SELECT DISTINCT Id 
+FROM daily_activity;
+
+-- Average of TotalSteps. Answer: 7638
+SELECT ROUND(AVG(TotalSteps))
+FROM daily_activity; 
+
+-- Lets us see which users need to walk more based off the average of TotalSteps number of 7638. 
+SELECT Id, ROUND(AVG(TotalSteps)) AS avg_steps,
+CASE
+    WHEN ROUND(AVG(TotalSteps)) >= 7638 THEN 'Great Job!'
+    WHEN ROUND(AVG(TotalSteps)) < 7638 THEN 'Push harder'
+    ELSE 'No data'
+END AS recognition_steps
+FROM daily_activity
+GROUP BY Id
+ORDER BY avg_steps DESC; 
+
+-- Average of TotalDistance. Answer: 5
+SELECT ROUND(AVG(TotalDistance))
+FROM daily_activity; 
+
+-- Lets us see which users walked more or less than the average distance of 5. 
+SELECT Id, ROUND(AVG(TotalDistance)) AS avg_distance,
+CASE
+    WHEN ROUND(AVG(TotalDistance)) >= 5 THEN 'Yay you walked the average distance!'
+    WHEN ROUND(AVG(TotalDistance)) < 5 THEN 'Whomp whomp whomp! You need to walk more'
+    ELSE 'No data'
+END AS recognition_distance
+FROM daily_activity
+GROUP BY Id
+ORDER BY avg_distance DESC;
+
+-- How many LoggedActivitiesDistance do we have greater than 0? Answer: 32
+SELECT COUNT(log_distance) 
+FROM (
+ SELECT CAST(LoggedActivitiesDistance as REAL) AS log_distance 
+ FROM daily_activity
+ )
+WHERE log_distance > 0; 
+
+--Selects the users that have logged distance -rounded up to 2 decimal points.
+SELECT Id, ROUND(CAST(LoggedActivitiesDistance AS REAL), 2) AS log_distance
+FROM daily_activity
+WHERE log_distance > 0
+ORDER BY Id; 
+
+-- How many users are inputting a daily_activity? Answer: 4
+SELECT COUNT(Distinct Id)
+FROM daily_activity
+WHERE ROUND(CAST(LoggedActivitiesDistance AS REAL), 2) > 0; 
+
+-- How many logs using sedentary activity > 0? Answer: 82
+SELECT sedentary_log
+FROM (
+ SELECT CAST(SedentaryActiveDistance as REAL) AS sedentary_log
+ FROM daily_activity
+ )
+WHERE sedentary_log > 0;
+
+-- Show all sedentary activity rounded 2 decimal places > 0 along w/ Ids. 
+SELECT Id, ROUND(CAST(SedentaryActiveDistance as REAL), 2) AS sedentary_log
+FROM daily_activity
+WHERE sedentary_log > 0; 
+
+-- How many uniqe users are logging sedentary activity? Answer: 10
+SELECT Id 
+FROM daily_activity
+WHERE CAST(SedentaryActiveDistance AS REAL) > 0
+GROUP BY Id;
+
+-- What is the average/rounded of VeryActiveMinutes? Answer: 21 min
+SELECT ROUND(AVG(VeryActiveMinutes)) AS avg_vam
+FROM daily_activity; 
+
+-- Lets us see which users are very active based on the average of VeryActiveMinutes = 21. 
+SELECT Id, ROUND(AVG(VeryActiveMinutes)) AS avg_vam,
+CASE
+    WHEN ROUND(AVG(VeryActiveMinutes)) >= 21 THEN 'You are a very active user.'
+    WHEN ROUND(AVG(VeryActiveMinutes)) BETWEEN 10 AND 20 THEN 'You are almost there, keep pushing!'
+    WHEN ROUND(AVG(VeryActiveMinutes)) < 10 THEN 'You need to exercise harder.'
+    ELSE 'No data'
+END AS recognition_activeminutes
+FROM daily_activity
+GROUP BY Id
+ORDER BY avg_vam DESC; 
+
+-- What is the MAX minutes in VeryActiveMinutes? Answer: 99 min
+SELECT MAX(VeryActiveMinutes) AS max_vam
+FROM daily_activity; 
+
+-- What is the MIN minutes in VeryActiveMinutes > 0? Answer: 1 min
+SELECT MIN(cast_vam)
+FROM (
+    SELECT CAST(VeryActiveMinutes AS REAL) AS cast_vam
+    FROM daily_activity 
+    )
+WHERE cast_vam > 0; 
+
+-- How many users are logging in VeryActiveMinutes? Answer: 33 
+SELECT DISTINCT Id AS unique_id, CAST(VeryActiveMinutes AS REAL) AS cast_vam
+FROM daily_activity
+WHERE cast_vam  > 0 
+GROUP BY unique_id
+ORDER BY unique_id;
+
+-- What is the average/rounded of FairlyActiveMinutes? Answer: 14 min
+SELECT ROUND(AVG(FairlyActiveMinutes)) AS round_fam
+FROM daily_activity;
+
+-- CASE statement letting us know which users are "very active", are on pace, and the ones that "need more excercie". 
+SELECT Id, ROUND(AVG(FairlyActiveMinutes)) AS round_fam,
+CASE
+    WHEN ROUND(AVG(FairlyActiveMinutes)) >= 14 THEN 'You are a very active user.'
+    WHEN ROUND(AVG(FairlyActiveMinutes)) BETWEEN 10 AND 13 THEN 'Good job, keep putting the work in.'
+    WHEN ROUND(AVG(FairlyActiveMinutes)) < 10 THEN 'You need to exercise more minutes.'
+    ELSE 'No data'
+END AS recognition_fairminutes
+FROM daily_activity
+GROUP BY Id
+ORDER BY round_fam DESC; 
+
+
+-- Sums up all the active minues by user and sorts from highest to lowest. 
+SELECT Id, SUM(CAST(FairlyActiveMinutes AS REAL)) AS sum_fam
+FROM daily_activity
+WHERE CAST(FairlyActiveMinutes AS REAL) > 0
+GROUP by Id
+ORDER BY sum_fam DESC; 
+
+-- Overview of calories lost per user and the sum of all minutes based off the type of active minutes. 
+SELECT Id
+, SUM(CAST(Calories AS REAL)) AS Calories
+, SUM(CAST(VeryActiveMinutes AS REAL)) AS very_active
+, SUM(CAST(FairlyActiveMinutes AS REAL)) AS fairly_active
+, SUM(CAST(LightlyActiveMinutes AS REAL)) AS lightly_active
+, SUM(CAST(SedentaryMinutes AS REAL)) AS sedentary
+FROM daily_activity
+GROUP BY Id
+ORDER BY Calories DESC; 
+
+-- Adds the total of steps in an hourly basis 
+SELECT Id, SUM(CAST(StepTotal AS REAl)) AS hourly_totalsteps
+FROM hourly_steps
+GROUP BY Id;
+
+-- USE OF PARTITION BY: How many hours did each user walk in total? 
+SELECT DISTINCT Id
+                , COUNT(ActivityHour) OVER(PARTITION BY Id) AS total_hours_walked
+FROM hourly_steps
+WHERE CAST(StepTotal AS REAL) > 0;
+
+-- How many users have captured sleep data/records and how many per user? Answer: 24 user. 
+SELECT DISTINCT Id, COUNT(TotalSleepRecords) AS records_per_user
+FROM sleep_day
+GROUP BY Id;
+
+-- How many users have entered their weight? Answer: 8
+SELECT COUNT(DISTINCT Id) 
+FROM weight_log; 

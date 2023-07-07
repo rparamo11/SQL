@@ -1,0 +1,20 @@
+/* 
+#(Currently Working on Case Study - Not Completed)
+------------------------------------------------------------------------------------------------------------------
+#SQL Used:
+
+------------------------------------------------------------------------------------------------------------------
+#ETL Process: Extract, Transform and Load
+Downloaded data from Kaggle, titled "Global Cost Of Living", (https://www.kaggle.com/datasets/mvieira101/global-cost-of-living) 
+Once the data was downloaded I proceeded to open the datesets via Excel and data. 
+Rename columns in Excel for readability purposes. 
+Saved and imported them to SQLite Studio. 
+Data Viz via Tableau at https://public.tableau.com/app/profile/rigo.paramo
+------------------------------------------------------------------------------------------------------------------
+#Findings:
+
+------------------------------------------------------------------------------------------------------------------
+#Summary/Analysis
+
+
+*/ 

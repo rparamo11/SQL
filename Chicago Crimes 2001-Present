@@ -34,6 +34,13 @@ GROUP BY CrimeType;
 --Top 5 crimes based off CountOfCrimes
 SELECT CrimeType, COUNT(CrimeType) CountOfCrimes
 FROM ChicagoCrimes
+GROUP BY CrimeType
+ORDER BY CountOfCrimes DESC
+LIMIT 5; 
+
+--Top 5 crimes based off CountOfCrimes in which arrests have been made
+SELECT CrimeType, COUNT(CrimeType) CountOfCrimes
+FROM ChicagoCrimes
 WHERE Arrest = 'TRUE'
 GROUP BY CrimeType
 ORDER BY CountOfCrimes DESC

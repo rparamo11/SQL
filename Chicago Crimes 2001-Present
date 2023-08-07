@@ -1,0 +1,103 @@
+/*Source: Chicago Data Portal website (https://data.cityofchicago.org/browse?category=Public+Safety&limitTo=datasets)
+Dataset: Crimes-2001 to Present (https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-Present/ijzp-q8t2)
+Data Provided by Chicago Police Department 
+------------------------------------------------------------------------------------------------------------------
+ETL Process: 
+1. Downloaded data from the Chicago Data Portal website. 
+2. Got familiar with the data and analyzed it before making any edits to the table. 
+3. Made a copy of the raw data in order to make edits to the data itself. 
+4. Removed duplicates.
+5. Date column converted to DATE mmddyyyy, thus removing the TIME. 
+6. Deleted columns IUCR, Beat, Ward, Community Area, FBI Code and Updated On. 
+7. Edited values in the Primary Type column to merge similar values together. 
+8. Looked up the district names to match the District column numbers on the chicagopolice.org website. 
+    I created an IF statment to look up values that match district numbers on the Chicago Police website. 
+9. Saved document as CSV.
+10. Imported CSV document to SQLite Studio. 
+------------------------------------------------------------------------------------------------------------------ */ 
+
+SELECT * 
+FROM ChicagoCrimes;
+
+-- Querying crimes in which arrests where made and grouped by the type of crime and the name of the district. 
+SELECT CrimeType, DistrictName
+FROM ChicagoCrimes
+WHERE Arrest = 'TRUE'
+ORDER BY CrimeType, DistrictName; 
+
+--Counts and groups the type of crimes that led to arrests. 
+SELECT CrimeType, COUNT(CrimeType) CountOfCrimes
+FROM ChicagoCrimes
+WHERE Arrest = 'TRUE'
+GROUP BY CrimeType; 
+
+--Top 5 crimes based off CountOfCrimes
+SELECT CrimeType, COUNT(CrimeType) CountOfCrimes
+FROM ChicagoCrimes
+WHERE Arrest = 'TRUE'
+GROUP BY CrimeType
+ORDER BY CountOfCrimes DESC
+LIMIT 5; 
+
+--Obtain all of the descriptions for the narcotics crime and how many times it has appeared as a description. 
+SELECT CrimeDescription, COUNT(CrimeDescription) count_crimedesc
+FROM ChicagoCrimes
+WHERE CrimeType = 'NARCOTICS'
+GROUP BY CrimeDescription 
+ORDER BY count_crimedesc DESC;
+
+--How many arrests have been made under the possession of cannabis of 30 gms or less
+SELECT CrimeDescription, COUNT(Arrest)
+FROM ChicagoCrimes
+WHERE CrimeDescription = 'POSS: CANNABIS 30GMS OR LESS' AND ARREST = 'TRUE'; 
+
+--Obtain all of the descriptions for the battery crime and how many times it has appeared as a description. 
+SELECT CrimeDescription, COUNT(CrimeDescription) count_crimedesc
+FROM ChicagoCrimes
+WHERE CrimeType = 'BATTERY'
+GROUP BY CrimeDescription 
+ORDER BY count_crimedesc DESC;
+
+--The amount of arrests NOT made while domestic battery was true. 
+SELECT CrimeDescription, COUNT(Arrest) AS arrest_false, COUNT(Domestic) AS domestic_true
+FROM ChicagoCrimes
+WHERE CrimeType = 'BATTERY' AND CrimeDescription = 'DOMESTIC BATTERY SIMPLE' AND Arrest = 'FALSE' AND Domestic = 'TRUE';
+
+--Obtain all of the descriptions for the theft crime and how many times it has appeared as a description. 
+SELECT CrimeDescription, COUNT(CrimeDescription) count_crimedesc
+FROM ChicagoCrimes
+WHERE CrimeType = 'THEFT'
+GROUP BY CrimeDescription 
+ORDER BY count_crimedesc DESC;
+
+--Obtain all of the descriptions for the trespass crime and how many times it has appeared as a description. 
+SELECT CrimeDescription, COUNT(CrimeDescription) count_crimedesc
+FROM ChicagoCrimes
+WHERE CrimeType = 'CRIMINAL TRESPASS'
+GROUP BY CrimeDescription 
+ORDER BY count_crimedesc DESC;
+
+--Count of crimes per district. Harrison is the highest w/ Lincoln having the smallest. 
+SELECT DistrictName,District, Count(CrimeType) AS Crime
+FROM ChicagoCrimes
+GROUP BY DistrictName
+ORDER BY Crime DESC;
+
+--Top 5 Crimes in the Harrison district. 
+SELECT CrimeType, COUNT(CrimeType)
+FROM ChicagoCrimes
+WHERE DistrictName = 'Harrison'
+GROUP BY CrimeType
+ORDER BY COUNT(CrimeType) DESC
+LIMIT 5;
+
+--Top 5 crimes in the Lincoln district. 
+SELECT CrimeType, COUNT(CrimeType)
+FROM ChicagoCrimes
+WHERE DistrictName = 'Lincoln'
+GROUP BY CrimeType
+ORDER BY COUNT(CrimeType) DESC
+LIMIT 5;
+
+
+
